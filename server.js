@@ -6,6 +6,9 @@ const app = express();
 const jsonParser = bodyParser.json();
 app.use(morgan("dev"));
 
+const authValidation = require("./middleware/authValidation");
+app.use(authValidation);
+
 let bookmarks = [
     {
         id: uuid.v4(),
@@ -143,4 +146,4 @@ app.patch('/bookmark/:id', jsonParser, (req, res) => {
 
 app.listen(8080, () => {
     console.log("Server running on localhost:8080");
-})
+});
