@@ -2,6 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const uuid = require("uuid");
+const mongoose = require("mongoose");
+const Bookmark = require("./bookmarkModel");
 const app = express();
 const jsonParser = bodyParser.json();
 app.use(morgan("dev"));
@@ -9,10 +11,14 @@ app.use(morgan("dev"));
 const authValidation = require("./middleware/authValidation");
 app.use(authValidation);
 
-let bookmarks = require("./data");
-
-app.get('/bookmarks', (req, res) => {
-    return res.status(200).json(bookmarks);
+app.get('/bookmarks', (_, res) => {
+    Bookmark
+        .getAll()
+        .then(d => {return res.status(200).json(d)})
+        .catch(_ => {
+            res.statusMessage = "Something went wrong";
+            return res.status(500).end();
+        });
 });
 
 app.get('/bookmark', (req, res) => {
@@ -23,20 +29,20 @@ app.get('/bookmark', (req, res) => {
         return res.status(406).end();
     }
 
-    let results = [];
-
-    for (let i of bookmarks) {
-        if (i.title === title) {
-            results.push(i);
-        }
-    }
-
-    if (!results.length) {
-        res.statusMessage = "No items with such title";
-        return res.status(404).end();
-    }
-
-    res.status(200).json(results);
+    Bookmark
+        .getByTitle(title)
+        .then(d => {
+            if (d.length > 0) {
+                return res.status(200).json(d);
+            } else {
+                res.statusMessage = "No items with such title";
+                return res.status(404).end();
+            }
+        })
+        .catch(_ => {
+            res.statusMessage = "Something went wrong";
+            return res.status(500).end();
+        });
 });
 
 app.post('/bookmarks', jsonParser, (req, res) => {
@@ -55,31 +61,43 @@ app.post('/bookmarks', jsonParser, (req, res) => {
         rating: rating
     }
 
-    bookmarks.push(newBookmark)
-
-    return res.status(201).json(newBookmark);
+    Bookmark
+        .createBookmark(newBookmark)
+        .then(d => {return res.status(201).json(d)})
+        .catch(_ => {
+            res.statusMessage = "Something went wrong";
+            return res.status(500).end();
+        });
 });
 
 app.delete('/bookmark/:id', (req, res) => {
     const id = req.params.id;
 
-    const index = bookmarks.findIndex(i => {
-        if (i.id === id) {
-            return true;
-        }
-    });
-
-    if (index < 0) {
-        res.statusMessage = "No bookmark for specified ID";
-        return res.status(404).end();
-    }
-
-    bookmarks.splice(index, 1);
-    return res.status(200).json({});
+    Bookmark
+        .getById(id)
+        .then(d => {
+            if (d.length !== 0) {
+                Bookmark
+                    .deleteBookmark(id)
+                    .then(_ => {return res.status(200).json({})})
+                    .catch(_ => {
+                        res.statusMessage = "Something went wrong";
+                        return res.status(500).end();
+                    });
+            } else {
+                res.statusMessage = "No bookmark for specified ID";
+                return res.status(404).end();
+            }
+        })
+        .catch(_ => {
+            res.statusMessage = "Something went wrong";
+            return res.status(500).end();
+        });
 });
 
 app.patch('/bookmark/:id', jsonParser, (req, res) => {
-    const {id, title, description, url, rating} = req.body;
+    const {id} = req.body;
+    let {title, description, url, rating} = req.body;
     const pid = req.params.id;
 
     if (!id) {
@@ -92,36 +110,63 @@ app.patch('/bookmark/:id', jsonParser, (req, res) => {
         return res.status(409).end();
     }
 
-    let bookmark = bookmarks.find(i => {
-        if (i.id === id) {
-            return i;
-        }
-    });
-
-    if (!bookmark) {
-        res.statusMessage = "No bookmark for specified ID";
-        return res.status(404).end();
-    }
-
-    if (title) {
-        bookmark.title = title;
-    }
-
-    if (description) {
-        bookmark.description = description;
-    }
-
-    if (url) {
-        bookmark.url = url;
-    }
-
-    if (rating) {
-        bookmark.rating = Number(rating);
-    }
-
-    res.status(202).json(bookmark);
+    Bookmark
+        .getById(id)
+        .then(d => {
+            if (d.length !== 0) {
+                if (!title) {
+                    title = d[0].title;
+                }
+                if (!description) {
+                    description = d[0].description;
+                }
+                if (!url) {
+                    url = d[0].url;
+                }
+                if (!rating) {
+                    rating = d[0].url;
+                }
+                const newValues = {title, description, url, rating};
+                Bookmark
+                    .updateBookmark(id, newValues)
+                    .then(_ => {
+                        Bookmark
+                            .getById(id)
+                            .then(d => {return res.status(202).json(d)})
+                            .catch(_ => {
+                                res.statusMessage = "Something went wrong";
+                                return res.status(500).end();
+                            });
+                     })
+                    .catch(_ => {
+                        res.statusMessage = "Something went wrong";
+                        return res.status(500).end();
+                    });
+            } else {
+                res.statusMessage = "No bookmark for specified ID";
+                return res.status(404).end();
+            }
+        })
+        .catch(_ => {
+            res.statusMessage = "Something went wrong";
+            return res.status(500).end();
+        });
 });
 
 app.listen(8080, () => {
     console.log("Server running on localhost:8080");
+    new Promise((resolve, reject) => {
+        mongoose.connect("mongodb://localhost/bookmarksdb", {useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log("Connected to db successfully");
+                return resolve();
+            }
+        });
+    })
+    .catch(err => {
+        mongoose.disconnect();
+        console.log(err);
+    });
 });
