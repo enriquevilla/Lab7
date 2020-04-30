@@ -124,7 +124,7 @@ app.patch('/bookmark/:id', jsonParser, (req, res) => {
                     url = d[0].url;
                 }
                 if (!rating) {
-                    rating = d[0].url;
+                    rating = d[0].rating;
                 }
                 const newValues = {title, description, url, rating};
                 Bookmark
