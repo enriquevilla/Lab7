@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/index.css">
+    <title>Bookmarks App</title>
+</head>
+<body>
+    <form class="get-bookmarks-form">
+        <label>
+            Click the button to get the list of bookmarks
+        </label>
+        <button id="submit-btn" type="submit">
+            Get bookmarks
+        </button>
+    </form>
+    <form class="get-bookmarksbytitle-form">
+        <div>
+            Get bookmark by title:
+        </div>
+        <label for="bookmarkTitle">
+            Title:
+        </label>
+        <input type="text" name="bookmarkTitle" id="bookmarkTitle">
+        <button type="submit">
+            Search
+        </button>
+    </form>
+    <form class="add-bookmark-form">
+        <div>
+            Add bookmark:
+        </div>
+        <label for="bookmarkTitle">
+            Title:
+        </label>
+        <input type="text" name="bookmarkTitle" id="bookmarkTitle">
+        <label for="bookmarkDescription">
+            Description:
+        </label>
+        <input type="text" name="bookmarkDescription" id="bookmarkDescription">
+        <label for="bookmarkURL">
+            URL:
+        </label>
+        <input type="text" name="bookmarkURL" id="bookmarkURL">
+        <label for="bookmarkRating">
+            Rating:
+        </label>
+        <input type="number" name="bookmarkRating" id="bookmarkRating">
+        <button type="submit">
+            Add bookmark
+        </button>
+    </form>
+    <form class="delete-bookmark-form">
+        <div>
+            Delete bookmark:
+        </div>
+        <label for="bookmarkID">
+            ID:
+        </label>
+        <input type="text" name="bookmarkID" id="bookmarkID">
+        <button type="submit">
+            Delete
+        </button>
+    </form>
+    <form class="update-bookmark-form">
+        <div>
+            Update bookmark:
+        </div>
+        <label for="bookmarkID">
+            ID:
+        </label>
+        <input type="text" name="bookmarkID" id="bookmarkID">
+        <label for="bookmarkTitle">
+            Title:
+        </label>
+        <input type="text" name="bookmarkTitle" id="bookmarkTitle">
+        <label for="bookmarkDescription">
+            Description:
+        </label>
+        <input type="text" name="bookmarkDescription" id="bookmarkDescription">
+        <label for="bookmarkURL">
+            URL:
+        </label>
+        <input type="text" name="bookmarkURL" id="bookmarkURL">
+        <label for="bookmarkRating">
+            Rating:
+        </label>
+        <input type="number" name="bookmarkRating" id="bookmarkRating">
+        <button type="submit">
+            Update
+        </button>
+    </form>
+    <section class="results">
+
+    </section>
+    <script src="./js/index.js"></script>
+</body>
+</html>

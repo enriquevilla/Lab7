@@ -63,7 +63,7 @@ const updateBookmark = (id, {title, description, url, rating}) => {
 
 const getById = (id) => {
     return bookmarksCollection
-        .find({id: id})
+        .findOne({id: id})
         .then(d => {return d})
         .catch(err => {return err});
 };

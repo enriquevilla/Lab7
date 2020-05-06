@@ -1,0 +1,15 @@
+form {
+    margin: 16px 0;
+}
+
+.results {
+    margin-top: 30px;
+}
+
+.item {
+    margin: 12px 0;
+}
+
+.item > p {
+    margin: 0;
+}

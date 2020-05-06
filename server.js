@@ -3,13 +3,18 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const uuid = require("uuid");
 const mongoose = require("mongoose");
-const Bookmark = require("./bookmarkModel");
+const Bookmark = require("./models/bookmarkModel");
+const {DBURL, PORT} = require("./config");
 const app = express();
 const jsonParser = bodyParser.json();
 app.use(morgan("dev"));
 
+app.use(express.static("public"));
+
 const authValidation = require("./middleware/authValidation");
 app.use(authValidation);
+const cors = require("./middleware/cors");
+app.use(cors);
 
 app.get('/bookmarks', (_, res) => {
     Bookmark
@@ -115,16 +120,16 @@ app.patch('/bookmark/:id', jsonParser, (req, res) => {
         .then(d => {
             if (d.length !== 0) {
                 if (!title) {
-                    title = d[0].title;
+                    title = d.title;
                 }
                 if (!description) {
-                    description = d[0].description;
+                    description = d.description;
                 }
                 if (!url) {
-                    url = d[0].url;
+                    url = d.url;
                 }
                 if (!rating) {
-                    rating = d[0].rating;
+                    rating = d.rating;
                 }
                 const newValues = {title, description, url, rating};
                 Bookmark
@@ -153,10 +158,10 @@ app.patch('/bookmark/:id', jsonParser, (req, res) => {
         });
 });
 
-app.listen(8080, () => {
+app.listen(PORT, () => {
     console.log("Server running on localhost:8080");
     new Promise((resolve, reject) => {
-        mongoose.connect("mongodb://localhost/bookmarksdb", {useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
+        mongoose.connect(DBURL, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true}, (err) => {
             if (err) {
                 reject(err);
             } else {

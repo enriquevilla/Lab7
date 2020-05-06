@@ -1,4 +1,4 @@
-const apiKey = "2abbf7c3-245b-404f-9473-ade729ed4653";
+const {APIKEY} = require("../config");
 
 const authValidation = (req, res, next) => {
     if (!req.headers.authorization) {
@@ -6,19 +6,19 @@ const authValidation = (req, res, next) => {
             if (!req.headers["book-api-key"]) {
                 res.statusMessage = "Unauthorized, no API key sent";
                 res.status(401).end();
-            } else if (req.headers["book-api-key"] === apiKey) {
+            } else if (req.headers["book-api-key"] === APIKEY) {
                 next();
             } else {
                 res.statusMessage = "Invalid authorization key";
                 return res.status(401).end();
             }
-        } else if (req.query.apiKey === apiKey) {
+        } else if (req.query.apiKey === APIKEY) {
             next();
         } else {
             res.statusMessage = "Invalid authorization key";
             return res.status(401).end();
         }
-    } else if (req.headers.authorization === `Bearer ${apiKey}`) {
+    } else if (req.headers.authorization === `Bearer ${APIKEY}`) {
         next();
     } else {
         res.statusMessage = "Invalid authorization key";
